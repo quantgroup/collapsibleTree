@@ -93,8 +93,10 @@ collapsibleTree.Node <- function(df, hierarchy_attribute = "level",
     scaleFactor <- 10/data.tree::Aggregate(df, nodeSize, stats::median)
     t <- data.tree::Traverse(df, hierarchy_attribute)
     # traverse down the tree and compute the size of each node
+    aggFunIsIdentity <- substitute(aggFun)=="identity"
     data.tree::Do(t, function(x) {
-      x$SizeOfNode <- data.tree::Aggregate(x, nodeSize, aggFun)
+      if (aggFunIsIdentity) x$SizeOfNode <- x[[nodeSize]]
+      else x$SizeOfNode <- data.tree::Aggregate(x, nodeSize, aggFun)
       # scale node growth to area rather than radius and round
       x$SizeOfNode <- round(sqrt(x$SizeOfNode*scaleFactor)*pi, 2)
     })
